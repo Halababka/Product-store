@@ -26,7 +26,6 @@ class StockController {
             const stocks = await stockService.getStocksByFilters(filters);
             res.json(stocks);
         } catch (error) {
-            console.log(error)
             res.status(500).json({ message: 'Error fetching stocks', error });
         }
     }
