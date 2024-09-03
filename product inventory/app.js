@@ -5,6 +5,8 @@ import stockRoutes from "./routes/stock.route.js";
 const app = express()
 const port = 3000
 
+app.use(express.json());
+
 app.use('/api', productRoutes);
 app.use('/api', stockRoutes);
 

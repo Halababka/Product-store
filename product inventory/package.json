@@ -9,6 +9,9 @@
     "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
   "author": "Popov Ilya",
   "license": "ISC",
   "dependencies": {
