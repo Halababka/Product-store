@@ -33,8 +33,8 @@ class StockService {
         const stock = await prisma.stock.update({
             where: {id: parseInt(data.id)},
             data: {
-                quantityOnShelf: {increment: data.quantityOnShelf},
-                quantityInOrder: {increment: data.quantityInOrder}
+                quantityOnShelf: data.quantityOnShelf ? {increment: data.quantityOnShelf} : undefined,
+                quantityInOrder: data.quantityInOrder ? {increment: data.quantityInOrder} : undefined
             }
         });
 
@@ -59,8 +59,8 @@ class StockService {
         const stock = await prisma.stock.update({
             where: {id: parseInt(data.id)},
             data: {
-                quantityOnShelf: {decrement: data.quantityOnShelf},
-                quantityInOrder: {decrement: data.quantityInOrder}
+                quantityOnShelf: data.quantityOnShelf ? {decrement: data.quantityOnShelf} : undefined,
+                quantityInOrder: data.quantityInOrder ? {decrement: data.quantityInOrder} : undefined
             }
         });
 
