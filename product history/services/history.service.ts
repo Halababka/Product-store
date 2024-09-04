@@ -15,12 +15,15 @@ type HistoryFilters = {
 const createHistory = async (data: {
   action: string;
   productId: number;
-  shopId: number;
   date: Date;
-  plu: string;  // Добавляем PLU
+  plu: string;
+  shopId: number;
 }) => {
   return prisma.actionHistory.create({
-    data,
+    data: {
+      ...data,
+      shopId: data.shopId ?? null,
+    },
   });
 };
 
