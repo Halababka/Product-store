@@ -12,12 +12,22 @@ class StockService {
         });
     }
 
-    async updateStock(id, data) {
+    async increaseStock(data) {
         return prisma.stock.update({
-            where: {id: Number(id)},
+            where: {id: parseInt(data.id)},
             data: {
-                quantityOnShelf: data.quantityOnShelf,
-                quantityInOrder: data.quantityInOrder
+                quantityOnShelf: {increment: data.quantityOnShelf},
+                quantityInOrder: {increment: data.quantityInOrder}
+            }
+        });
+    }
+
+    async decreaseStock(data) {
+        return prisma.stock.update({
+            where: {id: parseInt(data.id)},
+            data: {
+                quantityOnShelf: {decrement: data.quantityOnShelf},
+                quantityInOrder: {decrement: data.quantityInOrder}
             }
         });
     }
@@ -28,12 +38,12 @@ class StockService {
                 Product: {plu: filters.plu ? filters.plu : undefined},
                 shopId: filters.shopId ? parseInt(filters.shopId) : undefined,
                 quantityOnShelf: filters.quantityOnShelf ? {
-                    gte: parseInt(filters.quantityOnShelf.split('-')[0], 10),
-                    lte: parseInt(filters.quantityOnShelf.split('-')[1], 10),
+                    gte: parseInt(filters.quantityOnShelf.split("-")[0], 10),
+                    lte: parseInt(filters.quantityOnShelf.split("-")[1], 10)
                 } : undefined,
                 quantityInOrder: filters.quantityInOrder ? {
-                    gte: parseInt(filters.quantityInOrder.split('-')[0], 10),
-                    lte: parseInt(filters.quantityInOrder.split('-')[1], 10),
+                    gte: parseInt(filters.quantityInOrder.split("-")[0], 10),
+                    lte: parseInt(filters.quantityInOrder.split("-")[1], 10)
                 } : undefined
             }
         });

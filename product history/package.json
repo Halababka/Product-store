@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^5.19.1",
+    "amqplib": "^0.10.4",
     "express": "^4.19.2",
     "prisma": "^5.19.1"
   },

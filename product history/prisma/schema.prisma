@@ -13,4 +13,5 @@ model ActionHistory {
   shopId    Int
   action    String
   date      DateTime
+  plu       String
 }

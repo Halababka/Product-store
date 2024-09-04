@@ -6,17 +6,25 @@ class StockController {
             const stock = await stockService.createStock(req.body);
             res.status(201).json(stock);
         } catch (error) {
-            res.status(500).json({ message: 'Error creating stock', error });
+            res.status(500).json({message: "Error creating stock", error});
         }
     }
 
-    async updateStock(req, res) {
+    async increaseStockController(req, res) {
         try {
-            const { id } = req.params;
-            const stock = await stockService.updateStock(id, req.body);
+            const stock = await stockService.increaseStock(req.body);
             res.json(stock);
         } catch (error) {
-            res.status(500).json({ message: 'Error updating stock', error });
+            res.status(500).json({message: "Error updating stock", error});
+        }
+    }
+
+    async decreaseStockController(req, res) {
+        try {
+            const stock = await stockService.decreaseStock(req.body);
+            res.json(stock);
+        } catch (error) {
+            res.status(500).json({message: "Error updating stock", error});
         }
     }
 
@@ -26,9 +34,9 @@ class StockController {
             const stocks = await stockService.getStocksByFilters(filters);
             res.json(stocks);
         } catch (error) {
-            res.status(500).json({ message: 'Error fetching stocks', error });
+            res.status(500).json({message: "Error fetching stocks", error});
         }
     }
 }
 
-export default new StockController()
+export default new StockController();
