@@ -1,13 +1,26 @@
 import { prisma } from "../prisma/prisma.js";
+import { sendMessage } from "../rabbitmq.js";
 
 class ProductService {
     async createProduct(data) {
-        return prisma.product.create({
+        const product = await prisma.product.create({
             data: {
                 plu: data.plu,
                 name: data.name
             }
         });
+
+        if (product) {
+            const message = JSON.stringify({
+                action: "PRODUCT_CREATE",
+                productId: product.id,
+                date: new Date(),
+                plu: product.plu
+            });
+            await sendMessage(message);
+        }
+        
+        return product;
     }
 
     async getProductsByFilters(filters) {

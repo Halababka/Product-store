@@ -1,8 +1,9 @@
 import { prisma } from "../prisma/prisma.js";
+import { sendMessage } from "../rabbitmq.js";
 
 class StockService {
     async createStock(data) {
-        return prisma.stock.create({
+        const stock = await prisma.stock.create({
             data: {
                 Product: {connect: {id: data.productId}},
                 Shop: {connect: {id: data.shopId}},
@@ -10,26 +11,75 @@ class StockService {
                 quantityInOrder: data.quantityInOrder
             }
         });
+
+        const product = await prisma.product.findUnique({
+            where: { id: stock.productId },
+            select: { plu: true }
+        });
+
+        const message = JSON.stringify({
+            action: 'STOCK_CREATE',
+            productId: stock.productId,
+            shopId: stock.shopId,
+            date: new Date(),
+            plu: product.plu
+        });
+        await sendMessage(message);
+
+        return { ...stock, plu: product.plu }
     }
 
     async increaseStock(data) {
-        return prisma.stock.update({
+        const stock = await prisma.stock.update({
             where: {id: parseInt(data.id)},
             data: {
                 quantityOnShelf: {increment: data.quantityOnShelf},
                 quantityInOrder: {increment: data.quantityInOrder}
             }
         });
+
+        const product = await prisma.product.findUnique({
+            where: { id: stock.productId },
+            select: { plu: true }
+        });
+
+        const message = JSON.stringify({
+            action: 'STOCK_INCREASE',
+            productId: stock.productId,
+            shopId: stock.shopId,
+            date: new Date(),
+            plu: product.plu
+        });
+        await sendMessage(message);
+
+        return { ...stock, plu: product.plu }
     }
 
     async decreaseStock(data) {
-        return prisma.stock.update({
+        const stock = await prisma.stock.update({
             where: {id: parseInt(data.id)},
             data: {
                 quantityOnShelf: {decrement: data.quantityOnShelf},
                 quantityInOrder: {decrement: data.quantityInOrder}
             }
         });
+
+        const product = await prisma.product.findUnique({
+            where: { id: stock.productId },
+            select: { plu: true }
+        });
+
+        // Отправка сообщения в RabbitMQ
+        const message = JSON.stringify({
+            action: 'STOCK_DECREASE',
+            productId: stock.productId,
+            shopId: stock.shopId,
+            date: new Date(),
+            plu: product.plu
+        });
+        await sendMessage(message);
+
+        return { ...stock, plu: product.plu }
     }
 
     async getStocksByFilters(filters) {
