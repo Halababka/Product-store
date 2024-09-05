@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  user-service:
+    build:
+      context: ./nestjs-user-service
+      args:
+        PRISMA_BINARY_TARGETS: '["native", "debian-openssl-3.0.x"]'
+    ports:
+        - "3002:3002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres?schema=user
+#    command: >
+#      sh -c "
+#      npx prisma migrate dev --name init &&
+#      npm run start:prod
+#      "
+
+  stock-service:
+    build:
+      context: ./product inventory
+      args:
+        PRISMA_BINARY_TARGETS: '["native", "debian-openssl-3.0.x"]'
+
+    ports:
+      - "3000:3000"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres?schema=inventory
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+#    command: >
+#      sh -c "
+#      npx prisma migrate dev --name init &&
+#      npm run start
+#      "
+
+  history-service:
+    build:
+      context: ./product history
+      args:
+        PRISMA_BINARY_TARGETS: '["native", "debian-openssl-3.0.x"]'
+    ports:
+      - "3001:3001"
+    depends_on:
+        rabbitmq:
+          condition: service_healthy
+        postgres:
+          condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres?schema=history
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+#    command: >
+#      sh -c "
+#      npx prisma migrate dev --name init &&
+#      npm run start:prod
+#      "
+
+  postgres:
+    image: postgres:14
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_INITDB_ARGS: --auth=scram-sha-256
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres" ]
+      interval: 10s
+      start_period: 5s
+      retries: 5
+      timeout: 5s
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"  # Порт для AMQP
+      - "15672:15672"  # Порт для RabbitMQ Management Plugin
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "status"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+      timeout: 5s
+
+volumes:
+  postgres_data:

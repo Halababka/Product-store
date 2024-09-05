@@ -3,7 +3,8 @@ import historyService from "./services/history.service";
 
 export const connectRabbitMQ = async () => {
   try {
-    const connection = await amqp.connect('amqp://localhost');
+    const url = process.env.RABBITMQ_URL || 'amqp://localhost:5672'
+    const connection = await amqp.connect(url);
     const channel = await connection.createChannel();
     await channel.assertQueue('product_actions', {durable: true});
 

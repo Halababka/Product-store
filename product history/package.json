@@ -5,7 +5,8 @@
   "main": "app.ts",
   "scripts": {
     "dev": "ts-node app.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "start:prod": "node dist/app.js"
   },
   "keywords": [],
   "author": "Popov Ilya",
